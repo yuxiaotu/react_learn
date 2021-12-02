@@ -16,4 +16,4 @@
 - [生命周期]()
 - [列表渲染](./note/列表渲染.md)
 - [条件渲染](./note/条件渲染.md)
-- [hooks]()
+- [hooks](./note/hooks.md)
