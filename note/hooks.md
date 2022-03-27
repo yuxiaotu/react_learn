@@ -4,6 +4,8 @@
 - [Hooks 方法](#2-Hooks-方法)
   - [useState()](#21-useState)
   - [useEffect()](#22-useEffect)
+  - [useContext()](#23-useConent)
+  - [useRef()](#4-useRef)
 
 # 1. Hooks 的作用
 `hooks` 为函数式组件提供了状态合生命周期。以下两个组件分别是在类组件的模式下，以及函数式组件的模式下实现的。
@@ -105,22 +107,39 @@ function Example() {
 }
 ```
 
+`useEffect()` 可以监听 `state` 的变化来实现相应的业务逻辑。
+
+```js
+useEffetc(() => {
+  // 监听 num，count
+}, [num, count])
+```
+
 ## 2.3. useContext
 
-在组件之间共享状态，可以做状态的分发，避免了 react 逐层通过 props 传递数据。
+在组件之间共享状态，可以做状态的分发，避免了 `react` 逐层通过 `props` 传递数据。
 
-受上下文对象（从中 React.createContext 返回的值）并返回该上下文的当前上下文值。当前上下文值由树中调用组件上方 value 最近的 prop 确定 <MyContext.Provider>。
+受上下文对象（从中 `React.createContext` 返回的值）并返回该上下文的当前上下文值。通过 `Context.Provider` 进行包裹，通过 `value = {}` 来传值。 
+
+**Foo 子组件：**
+
+```js
+import React, { useContext } from 'react';
+export default () => {
+    const context = useContext(ThemeContext);
+    return (
+        <div>Foo 组件：当前 theme 是：{ context }</div>   
+    )
+}
+```
+
+**父组件中调用：**
 
 ```js
 import React, { createContext } from 'react';
 import Foo from './Foo';
-
-import './App.css';
-
 export const ThemeContext = createContext(null);
-
 export default () => {
-
     return (
         <ThemeContext.Provider value="light">
             <Foo />
@@ -129,33 +148,17 @@ export default () => {
 }
 ```
 
-```js
-import React, { useContext } from 'react';
-
-import { ThemeContext } from './App';
-
-export default () => {
-    
-    const context = useContext(ThemeContext);
-
-    return (
-        <div>Foo 组件：当前 theme 是：{ context }</div>   
-    )
-}
-```
 
 ## 2.4. useReducer
 
-useState 的替代方案。 接受类型为 `(state, action) => newState 的reducer`，并返回与 dispatch 方法配对的当前状态。
+`useReducer`  是 ` useState`   的替代方案。 
 
-- 当 state 状态值结构比较复杂时，使用 useReducer 更有优势。
-- 使用 useState 获取的 setState 方法更新数据时是异步的；而使用 useReducer 获取的 dispatch 方法更新数据是同步的。
+- 当 state 状态值结构比较复杂时，使用 `useReducer` 更有优势。
+- 使用 `useState` 获取的 `setState` 方法更新数据时是异步的；而使用 `useReducer` 获取的 `dispatch` 方法更新数据是同步的。
 
 ```js
 import React, { useReducer } from 'react';
-
 const initialState = {count: 0};
-
 function reducer(state, action) {
     switch (action.type) {
         case 'increment':
@@ -168,59 +171,48 @@ function reducer(state, action) {
 }
 
 export default () => {
-    
     // 使用 useReducer 函数创建状态 state 以及更新状态的 dispatch 函数
     const [state, dispatch] = useReducer(reducer, initialState);
     return (
-        <>
+        <div>
             Count: {state.count}
             <br />
             <button onClick={() => dispatch({type: 'increment'})}>+</button>
             <button onClick={() => dispatch({type: 'decrement'})}>-</button>
-        </>
+        </div>
     );
 }
 ```
 
 ## 2.5. useRef
 
-useRef 返回一个可变的 ref 对象，其 .current 属性被初始化为传递的参数（initialValue）。返回的对象将存留在整个组件的生命周期中。
+`useRef` 返回一个可变的 `ref` 对象，返回的对象将存留在整个组件的生命周期中。
 
 ```js
 import React, { useRef, useState, useEffect } from 'react'; 
-
 export default () => {
-    
-    // 使用 useRef 创建 inputEl 
     const inputEl = useRef(null);
-
     const [text, updateText] = useState('');
-
-    // 使用 useRef 创建 textRef 
     const textRef = useRef();
-
     useEffect(() => {
-        // 将 text 值存入 textRef.current 中
-        textRef.current = text;
+        textRef.current = text;  // 将 text 值存入 textRef.current 中
         console.log('textRef.current：', textRef.current);
     });
 
     const onButtonClick = () => {
-        // `current` points to the mounted text input element
         inputEl.current.value = "Hello, useRef";
     };
 
     return (
-        <>
+        <div>
             {/* 保存 input 的 ref 到 inputEl */}
             <input ref={ inputEl } type="text" />
             <button onClick={ onButtonClick }>在 input 上展示文字</button>
-            <br />
-            <br />
+            <br/>
+            <br/>
             <input value={text} onChange={e => updateText(e.target.value)} />
-        </>
+        </div>
     );
-
 }
 ```
 
