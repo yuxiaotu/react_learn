@@ -1,6 +1,7 @@
 # JSX
 
-## 01. 作用
+# 1. 作用
+
 `JSX` 是 `ECMAScript` 一个类似 `XML` 的语法拓展，可以快速生成 `react` 元素的一种语法，是 `React.createElement()` 的语法糖。可以在 `JavaScript` 中，使用 `HTML` 模板语法描述页面内容。
 
 `React` 认为渲染逻辑本质上是和其他 UI 逻辑内在耦合，比如在 UI 中需要绑定处理事件，在某些时刻状态发生时需要通知到 UI，以及需要在 UI 中展示准备好的数据。
@@ -24,9 +25,7 @@ const element1 = <div tabIndex="0"></div>;
 const element2 = <img src={user.avatarUrl} />
 ```
 
-
-
-## 02. 规则
+# 2. 规则
 - JSX 只能有一个根元素，标签必须是闭合的
 - 通过 `{}` 嵌入 Js 表达式
 - 被 babel 转换成 React.createElement 的函数调用，创建一个描述 HTML 消息的 JS 对象
