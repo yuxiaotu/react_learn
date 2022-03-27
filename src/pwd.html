@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .origin-words {
+      margin: 0 0 50px;
+    }
+
+    .box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .word-ul {
+      padding: 0;
+      list-style: none;
+    }
+
+    .word-ul li {
+      font-size: 30px;
+      font-weight: 600;
+      display: inline;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid skyblue;
+    }
+
+    .btn-ul {
+      padding: 0;
+      list-style: none;
+    }
+
+    .btn-ul li {
+      display: inline;
+    }
+
+    .btn {
+      width: 100px;
+      height: 40px;
+      margin: 0 15px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      color: #fff;
+      outline: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+</body>
+<script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/zh-lx/pinyin-pro@latest/dist/pinyin-pro.js"></script>
+<script type="text/babel">
+const { 
+  useState,
+  useEffect
+} = React;
+const { pinyin } = pinyinPro;
+
+/**
+ * 使用 promise 和 XMLHttpRequest 封装请求函数
+ */
+const request = function(method, url) {
+  return new Promise(function(resolve, reject) {
+    let xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response);
+      } else {
+        reject({
+          status: xhr.status,
+          statusText: xhr.statusText
+        })
+      }
+    }
+    xhr.onerror = function() {
+      reject({
+        status: xhr.status,
+        statusText: xhr.statusText
+      })
+    }
+    xhr.send();
+  })
+}
+
+const getWords = async function() {
+  return await request('GET', 'http://ovooa.com/API/du/api.php');
+}
+
+// 去掉标点符号
+function removePunctuation(str) {
+  return str.replace(/[。，！,.\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+}
+
+// 转为拼音
+function toPinYin(str) {
+  return pinyin(str)
+}
+
+// 组件
+function Con() {
+  const [words, setWords] = useState('点击下面的按钮，开始');
+  const [pwd, setPwd] = useState('');
+
+  // 获取文字内容
+  function build() {
+    getWords().then(res => {
+       setWords(res)
+    });
+  } 
+
+  function init() {
+    let s = removePunctuation(words);
+    let wordList = toPinYin(s).split(' ');
+    let newWords = wordList.map(word => {
+      return word[0].toUpperCase();
+    })
+    setPwd(newWords.join(''));
+  }
+
+  // 插入数字
+  function insertNum() {
+    setPwd(pwd.slice(0, 3) + '5' + pwd.slice(3));
+  }
+
+  // 插入特殊符号
+  function insertPunctuation() {
+    setPwd(pwd.slice(0, 3) + '@' + pwd.slice(3));
+  } 
+
+  // 大小写
+  function upperAndLower() {
+    let newWords = pwd.split('').map((word, index) => 
+      index % 2 == 0 ? word.toLowerCase() : word
+    );
+    setPwd(newWords.join(''));
+  }
+
+  // 按钮列表
+  const btns = [
+    { 
+      title: '毒鸡汤', 
+      color: '8479e1',
+      func: () => {
+        build();
+      }
+    },
+    { 
+      title: '转为拼音', 
+      color: 'f190b7',
+      func: () => {
+        init();
+      }
+    },
+    {
+      title: '大小写',
+      color: 'fdd7aa',
+      func: () => {
+        upperAndLower();
+      }
+    },
+    {
+      title: '插入数字',
+      color: 'a2d5ab',
+      func: () => {
+        insertNum();
+      }
+    },
+    {
+      title: '插入符号',
+      color: '56bbf1',
+      func: () => {
+        insertPunctuation();
+      }
+    }
+  ];
+
+  const BtnList = btns.map(btn => 
+    <li>
+      <button 
+        className='btn'
+        style={{ background: `#${btn.color}`}}
+        onClick={btn.func}
+      >
+        { btn.title }
+      </button>  
+    </li>
+  );
+
+  const PwdList = pwd.split('').map(word => 
+    <li>
+      { word }
+    </li>
+  );
+
+  return (
+    <div className="box">
+      <h1 className="origin-words">{ words }</h1>
+      <ul className="word-ul">{ PwdList }</ul>
+      <ul class="btn-ul">{ BtnList }</ul>
+    </div>
+  );
+}
+
+
+ReactDOM.render(
+    <Con/>,
+  document.getElementById('app')
+)
+
+/**
+ *  大写字母
+ *  小写字母
+ *  数字
+ *  符号： % # @  
+ */
+</script>
+</html>
